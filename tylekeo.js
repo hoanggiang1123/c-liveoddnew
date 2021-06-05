@@ -29,6 +29,9 @@ const getOdd = (dom) => {
             ratioFith = betArr[2];
         }
     }
+    if (ratioFirst === '' && ratioSecound === '' && ratioThird === '' && ratioFourd === '' && ratioFith === '' && ratioSixth === '') {
+        return {}
+    }
 
     return { ratioFirst, ratioSecound, ratioThird, ratioFourd, ratioFith, ratioSixth }
 }
@@ -55,9 +58,16 @@ exports.getOdds = (dom, type) => {
                         const timeDom = $(row).find('.time')[0];
 
                         if (type === 'normal-') {
-                            const time = $(timeDom).text().replace('TRỰC TIẾP ', '');
-                            dateTimeObj.timeStr = time;
-                            dateTimeObj.dateStr = 'Trực Tiếp'
+                            if ($(timeDom).find('.binding font')[0]) {
+                                const time = $(timeDom).text().replace('TRỰC TIẾP ', '');
+                                dateTimeObj.timeStr = time;
+                                dateTimeObj.dateStr = 'Trực Tiếp'
+                            } else {
+                                const time = $(timeDom).text().split(' ');
+                                dateTimeObj.timeStr = time[1] ? time[1] : '';
+                                dateTimeObj.dateStr = time[0] ? time[0] : '';
+                            }
+                            
                         }
                         if (type === 'live-') {
                             const dateDom = $(timeDom).find('.score')[0];
