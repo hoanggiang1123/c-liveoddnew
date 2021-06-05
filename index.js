@@ -7,11 +7,21 @@ require('dotenv').config();
 
 const PORT = 5000 || process.env.PORT;
 
-const io = require('socket.io')(http, {
-    cors: {
-        origin: process.env.FRONT_DOMAIN,
-        methods: ["GET", "POST"]
+var whitelist = [process.env.DEV_DOMAIN, process.env.FRONT_DOMAIN];
+
+var corsOptions = {
+  origin: function (origin, callback) {
+    if (whitelist.indexOf(origin) !== -1) {
+      callback(null, true)
+    } else {
+      callback(new Error('Not allowed by CORS'))
     }
+  }
+}
+
+
+const io = require('socket.io')(http, {
+    cors: corsOptions
 });
 
 io.on('connection', (socket) => {
