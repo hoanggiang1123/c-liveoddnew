@@ -42,7 +42,7 @@ const crawler = require('./crawler');
 const { getOdds, getOddContent } = require('./tylekeo');
 
 
-cron.schedule('30 * * * * *', async () => {
+cron.schedule('*/30 * * * * *', async () => {
     console.log('cron-odd-run');
 
     await crawler.init(process.env.TYLEKEO_URL);
