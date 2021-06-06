@@ -5,6 +5,7 @@ const http = require('http').createServer(app);
 
 require('dotenv').config();
 const puppeteer = require('puppeteer');
+process.setMaxListeners(Infinity);
 
 const PORT = 5000 || process.env.PORT;
 
@@ -78,7 +79,6 @@ const craw = async () => {
 
         if (live) data.push(live)
         if (normal) data.push(normal)
-
         if (data.length) {
 
             const strOdds = JSON.stringify(data);
@@ -102,7 +102,7 @@ const craw = async () => {
 
         browser.close();
 
-        process.exit();
+        // process.exit();
     }
 }
 cron.schedule('*/30 * * * * *', async () => {
