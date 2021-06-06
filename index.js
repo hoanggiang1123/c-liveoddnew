@@ -59,9 +59,9 @@ const craw = async () => {
 
         const page = await browser.newPage();
 
-        page.setUserAgent('Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.97 Safari/537.36');
+        await page.setUserAgent('Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.97 Safari/537.36');
 
-        page.goto(process.env.TYLEKEO_URL, { waitUntil: 'networkidle2' });
+        await page.goto(process.env.TYLEKEO_URL, { waitUntil: 'networkidle2' });
 
 
         const [liveDom, normalDom] = await getOddContent(page);
