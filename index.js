@@ -37,8 +37,6 @@ client.on('connect', function() {
 
 const cron = require('node-cron');
 
-const crawler = require('./crawler');
-
 const { getOdds, getOddContent } = require('./tylekeo');
 
 const craw = async () => {
@@ -59,7 +57,7 @@ const craw = async () => {
 
     try {
 
-        const page = await crawler.browser.newPage();
+        const page = await browser.newPage();
 
         page.setUserAgent('Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.97 Safari/537.36');
 
@@ -90,7 +88,6 @@ const craw = async () => {
 
             return true;
         }
-        await browser.close();
 
         io.emit('SEND_ERR', []);
 
@@ -101,7 +98,9 @@ const craw = async () => {
         io.emit('SEND_ERR', err.message);
 
     } finally {
+
         browser.close();
+
         process.exit();
     }
 }
