@@ -41,55 +41,72 @@ const crawler = require('./crawler');
 
 const { getOdds, getOddContent } = require('./tylekeo');
 
+const craw = async () => {
 
-cron.schedule('*/30 * * * * *', async () => {
     console.log('cron-odd-run');
 
-    await crawler.init(process.env.TYLEKEO_URL);
+    const browser = await puppeteer.launch({ headless: true, args: [
+        '--no-sandbox',
+        '--disable-setuid-sandbox',
+        '--disable-dev-shm-usage',
+        '--disable-accelerated-2d-canvas',
+        '--no-first-run',
+        '--no-zygote',
+        '--single-process', // <- this one doesn't works in Windows
+        '--disable-gpu'
+    ] });
+
 
     try {
-        if (crawler.page) {
 
-            const [liveDom, normalDom] = await getOddContent(crawler.page);
-    
-            await crawler.browser.close();
-    
-            let live;
-            let normal;
-            let data = []
-    
-            if (liveDom) live = getOdds(liveDom, 'live-');
-            if (normalDom) normal = getOdds(normalDom, 'normal-');
-    
-            if (live) data.push(live)
-            if (normal) data.push(normal)
-    
-            if (data.length) {
-                // console.log(data);
+        const page = await crawler.browser.newPage();
 
-                const strOdds = JSON.stringify(data);
+        page.setUserAgent('Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.97 Safari/537.36');
+
+        page.goto(url, { waitUntil: 'networkidle2' });
+
+
+        const [liveDom, normalDom] = await getOddContent(page);
     
-                client.set('TY_LE_KEO', strOdds);
-    
-                io.emit('SEND_ODD', strOdds);
-    
-                return true;
-            }
-    
-            io.emit('SEND_ERR', []);
+        await browser.close();
+
+        let live;
+        let normal;
+        let data = []
+
+        if (liveDom) live = getOdds(liveDom, 'live-');
+        if (normalDom) normal = getOdds(normalDom, 'normal-');
+
+        if (live) data.push(live)
+        if (normal) data.push(normal)
+
+        if (data.length) {
+
+            const strOdds = JSON.stringify(data);
+
+            client.set('TY_LE_KEO', strOdds);
+
+            io.emit('SEND_ODD', strOdds);
+
+            return true;
         }
-        await crawler.browser.close();
+        await browser.close();
 
-        io.emit('SEND_ERR', 'can not get page');
+        io.emit('SEND_ERR', []);
 
     } catch (err) {
 
-        if (crawler.browser) crawler.browser.close();
-
-        console.log(err)
+        console.log(err.message);
 
         io.emit('SEND_ERR', err.message);
+
+    } finally {
+        browser.close();
+        process.exit();
     }
+}
+cron.schedule('*/30 * * * * *', async () => {
+    await craw();
 
 }, { timezone: "Asia/Ho_Chi_Minh" });
 
