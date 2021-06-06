@@ -4,6 +4,7 @@ const app = express();
 const http = require('http').createServer(app);
 
 require('dotenv').config();
+const puppeteer = require('puppeteer');
 
 const PORT = 5000 || process.env.PORT;
 
